@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_printf_utils.c                                  :+:      :+:    :+:   */
+/*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: joandre- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/17 17:58:33 by joandre-          #+#    #+#             */
-/*   Updated: 2024/06/01 02:28:20 by joandre-         ###   ########.fr       */
+/*   Updated: 2024/09/23 19:17:44 by joandre-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,35 +26,34 @@ static void	print_nbr(unsigned long long n, int *len)
 	}
 }
 
-static void	print_hex(unsigned long long n, const char specifier, int *len)
+static void	print_hex(unsigned long long n, const char specifier,
+	char *hex, int *len)
 {
 	if (n >= 16)
 	{
-		print_hex(n / 16, specifier, len);
-		print_hex(n % 16, specifier, len);
+		print_hex(n / 16, specifier, hex, len);
+		print_hex(n % 16, specifier, hex, len);
 	}
 	if (n < 10)
-	{
-		ft_putchar_fd(n + '0', STDOUT_FILENO);
-		++(*len);
-	}
+		hex[(*len)++] = n + '0';
 	else if (n < 16)
 	{
 		if (specifier == 'x' || specifier == 'p')
-			ft_putchar_fd(n - 10 + 'a', STDOUT_FILENO);
+			hex[(*len)++] = n - 10 + 'a';
 		else if (specifier == 'X')
-			ft_putchar_fd(n - 10 + 'A', STDOUT_FILENO);
-		++(*len);
+			hex[(*len)++] = n - 10 + 'A';
 	}
 }
 
 int	ft_printhex(unsigned long long n, const char specifier)
 {
-	int	len;
+	int		len;
+	char	hex[17];
 
 	len = 0;
+	ft_bzero(&hex, 17);
 	if (specifier == 'x' || specifier == 'X')
-		print_hex(n, specifier, &len);
+		print_hex((unsigned int)n, specifier, hex, &len);
 	else if (specifier == 'p')
 	{
 		if (n == 0)
@@ -63,9 +62,10 @@ int	ft_printhex(unsigned long long n, const char specifier)
 			return (5);
 		}
 		ft_putstr_fd("0x", STDOUT_FILENO);
-		len = 2;
-		print_hex(n, specifier, &len);
+		print_hex(n, specifier, hex, &len);
+		len += 2;
 	}
+	ft_putstr_fd(hex, STDOUT_FILENO);
 	return (len);
 }
 
